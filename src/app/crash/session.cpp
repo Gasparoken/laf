@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2023  Igara Studio S.A.
+// Copyright (C) 2019-2024  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -71,6 +71,9 @@ Session::Session(RecoveryConfig* config,
   , m_path(path)
   , m_config(config)
 {
+  if (g_asepriteProcessName == "")
+    g_asepriteProcessName =
+      base::get_process_name(base::get_current_process_id());
 }
 
 Session::~Session()
@@ -128,7 +131,7 @@ bool Session::isRunning()
 {
   loadPid();
   if (m_pid)
-    return base::is_process_running(m_pid);
+    return base::is_process_running(m_pid, g_asepriteProcessName);
   else
     return false;
 }

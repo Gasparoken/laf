@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2022  Igara Studio S.A.
+// Copyright (C) 2019-2024  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -25,6 +25,7 @@ class Doc;
 namespace crash {
   struct RecoveryConfig;
 
+  static std::string g_asepriteProcessName = "";
   // A class to record/restore session information.
   class Session {
   public:
