@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2021  Igara Studio S.A.
+// Copyright (C) 2021-2024  Igara Studio S.A.
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
@@ -17,6 +17,9 @@ namespace app {
 
     // Called when the current timeline range is going to change.
     virtual void onBeforeRangeChanged(Timeline* timeline) { }
+
+    // Called when a layer is going to be hidden.
+    virtual void onBeforeLayerHiding(Timeline* timeline) { }
   };
 
 } // namespace app

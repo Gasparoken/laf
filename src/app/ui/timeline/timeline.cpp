@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2023  Igara Studio S.A.
+// Copyright (C) 2018-2024  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -4479,6 +4479,11 @@ void Timeline::setLayerVisibleFlag(const layer_t l, const bool state)
   bool regenRows = false;
 
   if (layer->isVisible() != state) {
+    // Consideration during MovingPixelState:
+    // drop pixels before hiding the layer.
+    if (!state)
+      notify_observers(&TimelineObserver::onBeforeLayerHiding, this);
+
     layer->setVisible(state);
     redrawEditors = true;
 

@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2023  Igara Studio S.A.
+// Copyright (C) 2019-2024  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -754,6 +754,14 @@ void MovingPixelsState::onBeforeRangeChanged(Timeline* timeline)
   if (!isActiveDocument())
     return;
 
+  if (m_pixelsMovement)
+    dropPixels();
+}
+
+void MovingPixelsState::onBeforeLayerHiding(Timeline* timeline)
+{
+  if (!isActiveDocument())
+    return;
   if (m_pixelsMovement)
     dropPixels();
 }
