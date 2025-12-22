@@ -1,5 +1,5 @@
 // LAF OS Library
-// Copyright (C) 2020-2024  Igara Studio S.A.
+// Copyright (C) 2020-2025  Igara Studio S.A.
 // Copyright (C) 2012-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -104,6 +104,10 @@
   NSEvent* event = [NSApp currentEvent];
   if (event != nil)
     [ViewOSX updateKeyFlags:event];
+
+  os::Event ev;
+  ev.setType(os::Event::AppLostFocus);
+  os::queue_event(ev);
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)notification

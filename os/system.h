@@ -186,6 +186,9 @@ public:
   // Returns true if the the given scancode key is pressed/actived.
   virtual bool isKeyPressed(KeyScancode scancode) = 0;
 
+  // Reset the key pressed buffer used in macOS
+  virtual void resetKeyPressed() = 0;
+
   // Returns the active pressed modifiers.
   virtual KeyModifiers keyModifiers() = 0;
 

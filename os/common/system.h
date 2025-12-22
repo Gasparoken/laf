@@ -55,6 +55,7 @@ public:
   Ref<Surface> loadRgbaSurface(const char*) override { return nullptr; }
   Ref<Cursor> makeCursor(const Surface*, const gfx::Point&, int) override { return nullptr; }
   bool isKeyPressed(KeyScancode) override { return false; }
+  void resetKeyPressed() override {}
   int getUnicodeFromScancode(KeyScancode) override { return 0; }
   void setTextInput(bool, const gfx::Point&) override {}
   gfx::Point mousePosition() const override { return gfx::Point(0, 0); }

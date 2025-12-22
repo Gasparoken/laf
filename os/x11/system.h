@@ -30,6 +30,7 @@ public:
   TabletOptions tabletOptions() const override { return m_tabletOptions; }
 
   bool isKeyPressed(KeyScancode scancode) override { return x11_is_key_pressed(scancode); }
+  void resetKeyPressed() override {}
 
   int getUnicodeFromScancode(KeyScancode scancode) override
   {

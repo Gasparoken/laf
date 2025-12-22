@@ -20,6 +20,7 @@ namespace os {
 
 bool osx_is_key_pressed(KeyScancode scancode);
 int osx_get_unicode_from_scancode(KeyScancode scancode);
+bool osx_reset_key_pressed();
 
 // By default the NSView will be created with a CALayer for backing
 // content with async drawing. This fixes performance issues on Retina
@@ -60,6 +61,8 @@ public:
   }
 
   bool isKeyPressed(KeyScancode scancode) override { return osx_is_key_pressed(scancode); }
+
+  void resetKeyPressed() override { osx_reset_key_pressed(); };
 
   int getUnicodeFromScancode(KeyScancode scancode) override
   {

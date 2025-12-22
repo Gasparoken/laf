@@ -29,6 +29,7 @@ public:
   TabletOptions tabletOptions() const override { return m_tabletOptions; }
 
   bool isKeyPressed(KeyScancode scancode) override;
+  void resetKeyPressed() override {}
   int getUnicodeFromScancode(KeyScancode scancode) override;
 
   CursorRef makeCursor(const Surface* surface, const gfx::Point& focus, const int scale) override;
