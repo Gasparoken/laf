@@ -1,5 +1,5 @@
 // LAF Base Library
-// Copyright (c) 2020-2024 Igara Studio S.A.
+// Copyright (c) 2020-2025 Igara Studio S.A.
 // Copyright (c) 2001-2017 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -38,6 +38,9 @@ std::wstring from_utf8(const std::string& utf8string);
 
 int utf8_length(const std::string& utf8string);
 int utf8_icmp(const std::string& a, const std::string& b, int n = 0);
+
+bool is_dead_key(codepoint_t ch);
+codepoint_t compose_dead_key(codepoint_t deadKey, codepoint_t baseChar);
 
 } // namespace base
 
