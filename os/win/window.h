@@ -167,6 +167,11 @@ private:
   bool m_usePointerApi;
   HINTERACTIONCONTEXT m_ictx;
 
+  // Accumulator for high-resolution mouse wheel devices (e.g.
+  // precision touchpads) that send sub-WHEEL_DELTA increments.
+  int m_wheelAccumX = 0;
+  int m_wheelAccumY = 0;
+
   // This might be the most ugliest hack I've done to fix a Windows
   // bug. Here's the thing:
   // 1) When we use the pen on a Surface device, it send us

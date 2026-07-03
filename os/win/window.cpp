@@ -1386,29 +1386,52 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       POINT pos = { GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam) };
       ScreenToClient(m_hwnd, &pos);
 
+      int z = GET_WHEEL_DELTA_WPARAM(wparam);
+
       Event ev;
       ev.setType(Event::MouseWheel);
       ev.setModifiers(get_modifiers_from_last_win32_message_with_mouse_flags(wparam));
       ev.setPosition(gfx::Point(pos.x, pos.y) / m_scale);
 
-      int z = GET_WHEEL_DELTA_WPARAM(wparam);
-      if (ABS(z) >= WHEEL_DELTA)
-        z /= WHEEL_DELTA;
-      else {
-        // TODO use floating point numbers or something similar
-        //      (so we could use: z /= double(WHEEL_DELTA))
-        z = SGN(z);
+      if (z != 0 && std::abs(z) < WHEEL_DELTA) {
+        gfx::Point delta((msg == WM_MOUSEHWHEEL ? z : 0),
+                         (msg == WM_MOUSEWHEEL ? -z : 0));
+        ev.setWheelDelta(delta);
+        ev.setPreciseWheel(true);
+        queueEvent(ev);
+
+        char buf[128];
+        sprintf(buf, "MOUSEWHEEL (precise) x,y=%d,%d delta=%d,%d\n",
+                    ev.position().x,
+                    ev.position().y,
+                    ev.wheelDelta().x,
+                    ev.wheelDelta().y);
+        OutputDebugStringA(buf);
       }
+      else {
+        if (msg == WM_MOUSEWHEEL)
+          m_wheelAccumY += z;
+        else
+          m_wheelAccumX += z;
 
-      gfx::Point delta((msg == WM_MOUSEHWHEEL ? z : 0), (msg == WM_MOUSEWHEEL ? -z : 0));
-      ev.setWheelDelta(delta);
-      queueEvent(ev);
+        int& accum = (msg == WM_MOUSEWHEEL) ? m_wheelAccumY : m_wheelAccumX;
+        z = accum / WHEEL_DELTA;
+        accum -= z * WHEEL_DELTA;
 
-      MOUSE_TRACE("MOUSEWHEEL xy=%d,%d delta=%d,%d\n",
-                  ev.position().x,
-                  ev.position().y,
-                  ev.wheelDelta().x,
-                  ev.wheelDelta().y);
+        if (z == 0)
+          break;
+
+        gfx::Point delta((msg == WM_MOUSEHWHEEL ? z : 0),
+                         (msg == WM_MOUSEWHEEL ? -z : 0));
+        ev.setWheelDelta(delta);
+        queueEvent(ev);
+
+        MOUSE_TRACE("MOUSEWHEEL xy=%d,%d delta=%d,%d\n",
+                    ev.position().x,
+                    ev.position().y,
+                    ev.wheelDelta().x,
+                    ev.wheelDelta().y);
+      }
       break;
     }
 
@@ -1663,26 +1686,49 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       if (!pointerEvent(wparam, ev, pi))
         break;
 
+      int z = GET_WHEEL_DELTA_WPARAM(wparam);
+
       ev.setType(Event::MouseWheel);
 
-      int z = GET_WHEEL_DELTA_WPARAM(wparam);
-      if (ABS(z) >= WHEEL_DELTA)
-        z /= WHEEL_DELTA;
-      else {
-        // TODO use floating point numbers or something similar
-        //      (so we could use: z /= double(WHEEL_DELTA))
-        z = SGN(z);
+      if (z != 0 && std::abs(z) < WHEEL_DELTA) {
+        gfx::Point delta((msg == WM_POINTERHWHEEL ? z : 0),
+                         (msg == WM_POINTERWHEEL ? -z : 0));
+        ev.setWheelDelta(delta);
+        ev.setPreciseWheel(true);
+        queueEvent(ev);
+
+        char buf[128];
+        sprintf(buf, "MOUSEWHEEL (precise) x,y=%d,%d delta=%d,%d\n",
+                    ev.position().x,
+                    ev.position().y,
+                    ev.wheelDelta().x,
+                    ev.wheelDelta().y);
+        OutputDebugStringA(buf);
       }
+      else {
+        if (msg == WM_POINTERWHEEL)
+          m_wheelAccumY += z;
+        else
+          m_wheelAccumX += z;
 
-      gfx::Point delta((msg == WM_POINTERHWHEEL ? z : 0), (msg == WM_POINTERWHEEL ? -z : 0));
-      ev.setWheelDelta(delta);
-      queueEvent(ev);
+        int& accum = (msg == WM_POINTERWHEEL) ? m_wheelAccumY : m_wheelAccumX;
+        z = accum / WHEEL_DELTA;
+        accum -= z * WHEEL_DELTA;
 
-      MOUSE_TRACE("POINTERWHEEL xy=%d,%d delta=%d,%d\n",
-                  ev.position().x,
-                  ev.position().y,
-                  ev.wheelDelta().x,
-                  ev.wheelDelta().y);
+        if (z == 0)
+          return 0;
+
+        gfx::Point delta((msg == WM_POINTERHWHEEL ? z : 0),
+                         (msg == WM_POINTERWHEEL ? -z : 0));
+        ev.setWheelDelta(delta);
+        queueEvent(ev);
+
+        MOUSE_TRACE("POINTERWHEEL xy=%d,%d delta=%d,%d\n",
+                    ev.position().x,
+                    ev.position().y,
+                    ev.wheelDelta().x,
+                    ev.wheelDelta().y);
+      }
 
       return 0;
     }
@@ -2325,8 +2371,9 @@ void WindowWin::handleInteractionContextOutput(const INTERACTION_CONTEXT_OUTPUT*
                     output->arguments.manipulation.delta.rotation);
 
         // TODO we should not change the sign
-        gfx::Point delta(-int(output->arguments.manipulation.delta.translationX) / m_scale,
-                         -int(output->arguments.manipulation.delta.translationY) / m_scale);
+        // 3 is an experimental divisor
+        gfx::Point delta(-int(output->arguments.manipulation.delta.translationX) / m_scale / 3,
+                         -int(output->arguments.manipulation.delta.translationY) / m_scale / 3);
 
         if (output->interactionFlags & INTERACTION_FLAG_BEGIN) {
           ev.setType(Event::MouseMove);
