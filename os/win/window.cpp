@@ -1393,20 +1393,20 @@ LRESULT WindowWin::wndProc(UINT msg, WPARAM wparam, LPARAM lparam)
       ev.setModifiers(get_modifiers_from_last_win32_message_with_mouse_flags(wparam));
       ev.setPosition(gfx::Point(pos.x, pos.y) / m_scale);
 
-      if (z != 0 && std::abs(z) < WHEEL_DELTA) {
-        gfx::Point delta((msg == WM_MOUSEHWHEEL ? z : 0),
-                         (msg == WM_MOUSEWHEEL ? -z : 0));
+      // High-resolution vertical wheel: emit sub-notch deltas as
+      // precise wheel events. Horizontal wheel (WM_MOUSEHWHEEL) always
+      // uses the discrete accumulation path.
+      if (msg == WM_MOUSEWHEEL && z != 0 && std::abs(z) < WHEEL_DELTA) {
+        gfx::Point delta(0, -z);
         ev.setWheelDelta(delta);
         ev.setPreciseWheel(true);
         queueEvent(ev);
 
-        char buf[128];
-        sprintf(buf, "MOUSEWHEEL (precise) x,y=%d,%d delta=%d,%d\n",
+        MOUSE_TRACE("MOUSEWHEEL (precise) xy=%d,%d delta=%d,%d\n",
                     ev.position().x,
                     ev.position().y,
                     ev.wheelDelta().x,
                     ev.wheelDelta().y);
-        OutputDebugStringA(buf);
       }
       else {
         if (msg == WM_MOUSEWHEEL)
